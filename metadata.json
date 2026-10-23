@@ -2,6 +2,6 @@
   "name": "ClarityLens",
   "description": "Multimodal AI visual intelligence powered by Gemma 4. Turn screenshots, error messages, notices, and study notes into clear explanations and practical next steps.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": []
 }
 
