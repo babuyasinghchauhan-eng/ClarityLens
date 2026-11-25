@@ -1,15 +1,31 @@
 import React, { useState } from 'react';
-import { Sparkles, Menu, X, ArrowUpRight } from 'lucide-react';
+import { Menu, X, ArrowUpRight, Sparkles, LayoutDashboard, Compass } from 'lucide-react';
 
 interface NavbarProps {
   onOpenWorkspace: () => void;
+  activeView: 'landing' | 'studio';
+  onToggleView: (view: 'landing' | 'studio') => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenWorkspace }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  onOpenWorkspace,
+  activeView,
+  onToggleView,
+}) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const scrollTo = (id: string) => {
     setMobileMenuOpen(false);
+    if (activeView === 'studio') {
+      onToggleView('landing');
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+      return;
+    }
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -19,23 +35,54 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenWorkspace }) => {
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#17151F]/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-8">
-        {/* Zone 1: Brand wordmark (single element lockup) */}
-        <a
-          href="#"
-          className="flex items-center gap-2.5 text-xl font-bold tracking-tight text-[#17151F] whitespace-nowrap shrink-0 group"
-        >
-          <div className="w-8 h-8 rounded-lg bg-[#6742F5] flex items-center justify-center text-white shadow-sm transition-transform duration-200 group-hover:scale-105">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"/>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-              <path d="M11 8v6"/>
-              <path d="M8 11h6"/>
-            </svg>
-          </div>
-          <span>ClarityLens</span>
-        </a>
+        {/* Zone 1: Brand wordmark */}
+        <div className="flex items-center gap-6">
+          <button
+            onClick={() => {
+              onToggleView('landing');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="flex items-center gap-2.5 text-xl font-bold tracking-tight text-[#17151F] whitespace-nowrap shrink-0 group cursor-pointer"
+          >
+            <div className="w-8 h-8 rounded-lg bg-[#6742F5] flex items-center justify-center text-white shadow-sm transition-transform duration-200 group-hover:scale-105">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                <path d="M11 8v6"/>
+                <path d="M8 11h6"/>
+              </svg>
+            </div>
+            <span>ClarityLens</span>
+          </button>
 
-        {/* Zone 2: 4-5 single-line nav links */}
+          {/* View Switcher Pill */}
+          <div className="hidden sm:flex items-center bg-[#F7F6FA] p-1 rounded-xl border border-[#17151F]/10 text-xs font-semibold">
+            <button
+              onClick={() => onToggleView('landing')}
+              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 ${
+                activeView === 'landing'
+                  ? 'bg-white text-[#17151F] shadow-xs'
+                  : 'text-[#706D7A] hover:text-[#17151F]'
+              }`}
+            >
+              <Compass className="w-3.5 h-3.5" />
+              <span>Showcase</span>
+            </button>
+            <button
+              onClick={() => onToggleView('studio')}
+              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 ${
+                activeView === 'studio'
+                  ? 'bg-white text-[#6742F5] shadow-xs'
+                  : 'text-[#706D7A] hover:text-[#17151F]'
+              }`}
+            >
+              <LayoutDashboard className="w-3.5 h-3.5" />
+              <span>Studio Mode</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Zone 2: Navigation Links */}
         <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-[#706D7A]">
           <button
             onClick={() => scrollTo('how-it-works')}
@@ -72,7 +119,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenWorkspace }) => {
         {/* Zone 3: 1 primary action */}
         <div className="hidden md:flex items-center gap-3 shrink-0">
           <button
-            onClick={onOpenWorkspace}
+            onClick={() => {
+              if (activeView === 'studio') {
+                const el = document.getElementById('workspace');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              } else {
+                onOpenWorkspace();
+              }
+            }}
             className="px-5 py-2.5 text-sm font-semibold text-white bg-[#6742F5] hover:bg-[#3921A8] active:scale-[0.98] transition-all rounded-xl shadow-sm whitespace-nowrap shrink-0 cursor-pointer flex items-center gap-1.5"
           >
             <span>Analyze an image</span>
@@ -96,6 +150,27 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenWorkspace }) => {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="md:hidden border-b border-[#17151F]/10 bg-white px-4 pt-3 pb-6 space-y-3">
+          <div className="flex bg-[#F7F6FA] p-1 rounded-xl border border-[#17151F]/10 text-xs font-semibold mb-3">
+            <button
+              onClick={() => {
+                onToggleView('landing');
+                setMobileMenuOpen(false);
+              }}
+              className={`flex-1 py-2 text-center rounded-lg ${activeView === 'landing' ? 'bg-white text-[#17151F] shadow-xs' : 'text-[#706D7A]'}`}
+            >
+              Showcase
+            </button>
+            <button
+              onClick={() => {
+                onToggleView('studio');
+                setMobileMenuOpen(false);
+              }}
+              className={`flex-1 py-2 text-center rounded-lg ${activeView === 'studio' ? 'bg-white text-[#6742F5] shadow-xs' : 'text-[#706D7A]'}`}
+            >
+              Studio Mode
+            </button>
+          </div>
+
           <button
             onClick={() => scrollTo('how-it-works')}
             className="block w-full text-left py-2 text-base font-medium text-[#706D7A] hover:text-[#17151F]"
